@@ -4,23 +4,23 @@
   <artifactId>Interconnection</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <dependencies>
-      <dependency>
-  <groupId>org.apache.commons</groupId>
-  <artifactId>commons-csv</artifactId>
-  <version>1.9.0</version>
-</dependency>
-<dependency>
-    <groupId>junit</groupId>
-    <artifactId>junit</artifactId>
-    <version>4.12</version>
-    <scope>test</scope>
-</dependency>
-
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+      <version>1.9.0</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-<properties>
-  <sonar.organization>mooc-tutorials</sonar.organization>
-  <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-</properties>
+  <properties>
+    <!-- Actualizado con las propiedades deseadas -->
+    <sonar.organization>apelaez3</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+  </properties>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
