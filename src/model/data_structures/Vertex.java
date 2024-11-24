@@ -1,18 +1,23 @@
 package model.data_structures;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Comparator;
 
 public class Vertex<K extends Comparable<K>, V extends Comparable<V>> implements Comparable<Vertex<K, V>> {
     private K key;
     private V value;
-    private ILista<Edge<K, V>> edges;
+    private Map<K, Edge<K, V>> edgeMap; // Optimización para búsquedas rápidas de aristas
     private boolean marked;
 
     // Constructor
     public Vertex(K id, V value) {
+        if (id == null || value == null) {
+            throw new IllegalArgumentException("Key and value cannot be null");
+        }
         this.key = id;
         this.value = value;
-        this.edges = new ArregloDinamico<>(1);
+        this.edgeMap = new HashMap<>();
         this.marked = false;
     }
 
@@ -29,10 +34,6 @@ public class Vertex<K extends Comparable<K>, V extends Comparable<V>> implements
         return marked;
     }
 
-    public ILista<Edge<K, V>> getEdges() {
-        return edges;
-    }
-
     // Methods to mark/unmark vertex
     public void mark() {
         this.marked = true;
@@ -44,39 +45,25 @@ public class Vertex<K extends Comparable<K>, V extends Comparable<V>> implements
 
     // Add edge to the vertex
     public void addEdge(Edge<K, V> edge) {
-        try {
-            edges.insertElement(edge, edges.size() + 1);
-        } catch (PosException | NullException e) {
-            e.printStackTrace();
+        if (edge == null) {
+            throw new IllegalArgumentException("Edge cannot be null");
+        }
+        K destinationId = edge.getDestination().getId();
+        if (!edgeMap.containsKey(destinationId)) {
+            edgeMap.put(destinationId, edge);
+        } else {
+            System.out.println("Edge already exists between " + this.key + " and " + destinationId);
         }
     }
 
     // Get the edge connecting to a specific vertex
     public Edge<K, V> getEdge(K vertex) {
-        for (int i = 1; i <= edges.size(); i++) {
-            try {
-                Edge<K, V> edge = edges.getElement(i);
-                if (edge.getDestination().getId().compareTo(vertex) == 0) {
-                    return edge;
-                }
-            } catch (PosException | VacioException e) {
-                e.printStackTrace();
-            }
-        }
-        return null;
+        return edgeMap.get(vertex);
     }
 
     // Return all connected vertices
-    public ILista<Vertex<K, V>> getConnectedVertices() {
-        ILista<Vertex<K, V>> connectedVertices = new ArregloDinamico<>(1);
-        for (int i = 1; i <= edges.size(); i++) {
-            try {
-                connectedVertices.insertElement(edges.getElement(i).getDestination(), connectedVertices.size() + 1);
-            } catch (PosException | NullException | VacioException e) {
-                e.printStackTrace();
-            }
-        }
-        return connectedVertices;
+    public Map<K, Edge<K, V>> getEdges() {
+        return edgeMap;
     }
 
     // BFS Traversal
@@ -87,32 +74,23 @@ public class Vertex<K extends Comparable<K>, V extends Comparable<V>> implements
 
         while (queue.peek() != null) {
             Vertex<K, V> current = queue.dequeue();
-            for (int i = 1; i <= current.edges.size(); i++) {
-                try {
-                    Vertex<K, V> neighbor = current.edges.getElement(i).getDestination();
-                    if (!neighbor.isMarked()) {
-                        neighbor.mark();
-                        queue.enqueue(neighbor);
-                    }
-                } catch (PosException | VacioException e) {
-                    e.printStackTrace();
+            for (Edge<K, V> edge : current.edgeMap.values()) {
+                Vertex<K, V> neighbor = edge.getDestination();
+                if (!neighbor.isMarked()) {
+                    neighbor.mark();
+                    queue.enqueue(neighbor);
                 }
             }
         }
     }
 
     // DFS Traversal
-    public void dfs(Edge<K, V> incomingEdge) {
+    public void dfs() {
         this.mark();
-        for (int i = 1; i <= edges.size(); i++) {
-            try {
-                Edge<K, V> edge = edges.getElement(i);
-                Vertex<K, V> destination = edge.getDestination();
-                if (!destination.isMarked()) {
-                    destination.dfs(edge);
-                }
-            } catch (PosException | VacioException e) {
-                e.printStackTrace();
+        for (Edge<K, V> edge : edgeMap.values()) {
+            Vertex<K, V> destination = edge.getDestination();
+            if (!destination.isMarked()) {
+                destination.dfs();
             }
         }
     }
@@ -122,14 +100,10 @@ public class Vertex<K extends Comparable<K>, V extends Comparable<V>> implements
         this.mark();
         pre.enqueue(this);
 
-        for (int i = 1; i <= edges.size(); i++) {
-            try {
-                Vertex<K, V> destination = edges.getElement(i).getDestination();
-                if (!destination.isMarked()) {
-                    destination.topologicalOrder(pre, post, reversePost);
-                }
-            } catch (PosException | VacioException e) {
-                e.printStackTrace();
+        for (Edge<K, V> edge : edgeMap.values()) {
+            Vertex<K, V> destination = edge.getDestination();
+            if (!destination.isMarked()) {
+                destination.topologicalOrder(pre, post, reversePost);
             }
         }
 
@@ -149,11 +123,7 @@ public class Vertex<K extends Comparable<K>, V extends Comparable<V>> implements
             Vertex<K, V> destination = edge.getDestination();
 
             if (!destination.isMarked()) {
-                try {
-                    mst.insertElement(edge, mst.size() + 1);
-                } catch (PosException | NullException e) {
-                    e.printStackTrace();
-                }
+                mst.insertElement(edge, mst.size() + 1);
                 addEdgesToMinPQ(minPQ, destination);
             }
         }
@@ -163,13 +133,8 @@ public class Vertex<K extends Comparable<K>, V extends Comparable<V>> implements
     private void addEdgesToMinPQ(MinPQ<Float, Edge<K, V>> minPQ, Vertex<K, V> vertex) {
         vertex.mark();
 
-        for (int i = 1; i <= vertex.edges.size(); i++) {
-            try {
-                Edge<K, V> edge = vertex.edges.getElement(i);
-                minPQ.insert(edge.getWeight(), edge);
-            } catch (PosException | VacioException e) {
-                e.printStackTrace();
-            }
+        for (Edge<K, V> edge : vertex.edgeMap.values()) {
+            minPQ.insert(edge.getWeight(), edge);
         }
     }
 
@@ -186,3 +151,4 @@ public class Vertex<K extends Comparable<K>, V extends Comparable<V>> implements
         return this.key.compareTo(other.getId());
     }
 }
+
