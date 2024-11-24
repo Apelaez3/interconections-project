@@ -1,4 +1,11 @@
 <?xml version="1.0" ?>
-<ns2:softwareSystem xmlns:ns2="http://www.hello2morrow.com/sonargraph/core" id="1d8e17fd1942e1fd37288970adf8c710" version="14.0.1.866">
+<ns2:softwareSystem xmlns:ns2="http://www.hello2morrow.com/sonargraph/core" id="89a2ac7b8f5ee5f0187061114c251386" version="14.0.1.866">
 	<description></description>
+	<module xmlns:ns4="http://www.hello2morrow.com/sonargraph/languageprovider/java" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns4:xsdJavaModule" name="Main" id="233d0252f2eb09821701e7ca9f65e543" language="Java">
+		<description></description>
+		<rootPath xsi:type="ns4:xsdSourceRootPath" name="./src"></rootPath>
+		<rootPath name="./target/classes"></rootPath>
+		<rootPath name="./target/test-classes"></rootPath>
+		<rootPath xsi:type="ns4:xsdSourceRootPath" name="./test"></rootPath>
+	</module>
 </ns2:softwareSystem>

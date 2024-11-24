@@ -1,32 +1,25 @@
 package model.data_structures;
 
-public class Landing implements Comparable <Landing>
-{
+public class Landing implements Comparable<Landing> {
 	private String landingId;
-	
 	private String id;
-	
 	private String name;
-	
 	private String pais;
-	
 	private double latitude;
-	
 	private double longitude;
-	
-	private String codigo; 
-	
-	public Landing(String plandingid, String pid, String pname, String ppais, double platitude, double plongitude)
-	{
-		setLandingId(plandingid);
-		setId(pid);
-		setName(pname);
-		setPais(ppais);
-		setLatitude(platitude);
-		setLongitude(plongitude);
-		setCodigo("");
+	private String codigo;
+
+	public Landing(String landingId, String id, String name, String pais, double latitude, double longitude) {
+		this.landingId = landingId;
+		this.id = id;
+		this.name = name;
+		this.pais = pais;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.codigo = ""; // Set default empty value for codigo
 	}
 
+	// Getters and Setters
 	public String getLandingId() {
 		return landingId;
 	}
@@ -67,15 +60,7 @@ public class Landing implements Comparable <Landing>
 		this.longitude = longitude;
 	}
 
-	@Override
-	public int compareTo(Landing o) 
-	{
-		System.out.print("holis");
-		return 0;
-	}
-
-	public String getPais() 
-	{
+	public String getPais() {
 		return pais;
 	}
 
@@ -90,4 +75,12 @@ public class Landing implements Comparable <Landing>
 	public void setCodigo(String codigo) {
 		this.codigo = codigo;
 	}
+
+	// Implementación de compareTo por nombre
+	@Override
+	public int compareTo(Landing o) {
+		// Se compara por el nombre (puedes cambiar este criterio según sea necesario)
+		return this.name.compareTo(o.getName());
+	}
 }
+

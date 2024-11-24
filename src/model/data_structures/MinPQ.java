@@ -1,149 +1,111 @@
 package model.data_structures;
 
-public class MinPQ<K extends Comparable<K> ,V extends Comparable <V>>
-{
+public class MinPQ<K extends Comparable<K>, V extends Comparable<V>> {
 	protected ILista<NodoTS<K, V>> arbol;
-	
 	protected int tamano;
-	
-	public MinPQ(int inicial)
-	{
-		arbol= new ArregloDinamico<NodoTS<K, V>>(inicial);
-		tamano=0;
+
+	public MinPQ(int inicial) {
+		arbol = new ArregloDinamico<NodoTS<K, V>>(inicial);
+		tamano = 0;
 	}
-	
-	public void swim(ILista<NodoTS<K, V>> lista, int pos)
-	{
-		boolean swimTerminado=false;
-		while(pos>1 && !swimTerminado)
-		{
-			try {
-				NodoTS<K, V> papa= lista.getElement(pos/2);
-				NodoTS<K, V> actual= lista.getElement(pos);
-				if(papa.getKey().compareTo(actual.getKey())>0)
-				{
-					lista.exchange(pos/2, pos);
-				}
-				else
-				{
-					swimTerminado=true;
-				}
-				pos=pos/2;
-			} catch (PosException | VacioException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+
+	// Método para mantener la propiedad de la cola de prioridad (sube el nodo en el árbol)
+	private void swim(int pos) {
+		while (pos > 1 && compareKeys(pos, pos / 2) < 0) {
+			exchange(pos, pos / 2);
+			pos = pos / 2;
 		}
 	}
-	
-	public void insert(K key, V value)
-	{
-		try 
-		{
-			arbol.insertElement(new NodoTS<K, V>(key, value), arbol.size()+1);
-			tamano++;
-			swim(arbol, tamano);
-		} 
-		catch (PosException | NullException e) {
-			// TODO Auto-generated catch block
+
+	// Método para mantener la propiedad de la cola de prioridad (baja el nodo en el árbol)
+	private void sink(int pos) {
+		int size = arbol.size();
+		while (2 * pos <= size) {
+			int left = 2 * pos;
+			int right = left + 1;
+			int smallest = pos;
+
+			if (left <= size && compareKeys(left, smallest) < 0) {
+				smallest = left;
+			}
+			if (right <= size && compareKeys(right, smallest) < 0) {
+				smallest = right;
+			}
+			if (smallest == pos) {
+				break;
+			}
+			exchange(pos, smallest);
+			pos = smallest;
+		}
+	}
+
+	// Método para comparar las claves de dos nodos
+	private int compareKeys(int pos1, int pos2) {
+		try {
+			return arbol.getElement(pos1).getKey().compareTo(arbol.getElement(pos2).getKey());
+		} catch (PosException | VacioException e) {
 			e.printStackTrace();
 		}
-		
-		
+		return 0;
 	}
-	
-	public int size()
-	{
+
+	// Método para intercambiar elementos en la lista
+	private void exchange(int pos1, int pos2) {
+		try {
+			arbol.exchange(pos1, pos2);
+		} catch (PosException | VacioException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void insert(K key, V value) {
+		try {
+			arbol.insertElement(new NodoTS<>(key, value), arbol.size() + 1);
+			tamano++;
+			swim(tamano); // Asegura que el nuevo elemento suba a la posición correcta
+		} catch (PosException | NullException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public int size() {
 		return tamano;
 	}
-	
-	public NodoTS<K, V> min()
-	{
-		try {
-			if(tamano > 1) 
-			{
-				return arbol.getElement(1);
+
+	public NodoTS<K, V> min() {
+		if (tamano > 0) {
+			try {
+				return arbol.getElement(1); // El mínimo siempre estará en la raíz
+			} catch (PosException | VacioException e) {
+				e.printStackTrace();
 			}
-			else 
-			{
-				return null;
-			}
-		} catch (PosException | VacioException e) 
-		{
-			e.printStackTrace();
 		}
-		
 		return null;
 	}
-	
-	public void sink(ILista<NodoTS<K, V>> lista, int pos)
-	{
-		int size= lista.size();
-		
-		boolean sinkCompleto=false;
-		while(2*pos<=size && sinkCompleto==false)
-		{
-			int hizq=2*pos;
-			int hder=hizq +1;
-			
-			int posMenor=pos;
-			
-			try 
-			{
-				if(lista.getElement(posMenor).compareTo(lista.getElement(hizq))>0)
-				{
-					posMenor=hizq;
-					
-				}
-				if(hder<=size && lista.getElement(posMenor).compareTo(lista.getElement(hder))>0)
-				{
-					posMenor=hder;
-				}
-				if(posMenor==pos)
-				{
-					sinkCompleto=true;
-				}
-				else
-				{
-					lista.exchange(pos, posMenor);
-					pos=posMenor;
-				}
-			} catch (PosException | VacioException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	public NodoTS<K, V> delMin()
-	{
-		NodoTS<K, V> retornar=null;
-		if(tamano>1)
-		{
-			try {
-				arbol.exchange(1, tamano);
-				retornar=arbol.removeLast();
-				tamano--;
-				sink(arbol, 1);
 
-			} catch (PosException | VacioException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	public NodoTS<K, V> delMin() {
+		if (tamano == 0) return null;
+
+		NodoTS<K, V> min = null;
+		try {
+			if (tamano > 1) {
+				exchange(1, tamano); // Intercambiar el primer y el último
+				min = arbol.removeLast(); // Eliminar el último elemento (el mínimo)
+			} else {
+				min = arbol.removeLast(); // Solo queda un elemento
 			}
-		}
-		else if(tamano>0)
-		{
-			retornar=arbol.removeLast();
 			tamano--;
+			if (tamano > 0) {
+				sink(1); // Asegurar que el árbol siga siendo un heap después de la eliminación
+			}
+		} catch (PosException | VacioException e) {
+			e.printStackTrace();
 		}
-		
-		return retornar;
+		return min;
 	}
-	
-	public boolean isEmpty()
-	{
-		return tamano==0;
+
+	public boolean isEmpty() {
+		return tamano == 0;
 	}
-	
-	
 }
+
